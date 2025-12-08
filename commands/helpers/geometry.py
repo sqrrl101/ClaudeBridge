@@ -6,6 +6,79 @@ import adsk.core
 import adsk.fusion
 
 
+def collect_all_components(root):
+    """
+    Recursively collect all components in the design hierarchy.
+
+    Args:
+        root: Root component
+
+    Returns:
+        List of all components (including root)
+    """
+    components = [root]
+
+    def traverse_occurrences(occurrences):
+        for i in range(occurrences.count):
+            occ = occurrences.item(i)
+            comp = occ.component
+            components.append(comp)
+            if comp.occurrences.count > 0:
+                traverse_occurrences(comp.occurrences)
+
+    traverse_occurrences(root.occurrences)
+    return components
+
+
+def get_all_sketches(root):
+    """
+    Get all sketches across all components with global indexing.
+
+    Args:
+        root: Root component
+
+    Returns:
+        List of tuples: (sketch, global_index, component)
+    """
+    all_components = collect_all_components(root)
+    sketches = []
+    global_index = 0
+
+    for comp in all_components:
+        for i in range(comp.sketches.count):
+            sketch = comp.sketches.item(i)
+            sketches.append((sketch, global_index, comp))
+            global_index += 1
+
+    return sketches
+
+
+def get_sketch_by_global_index(root, index):
+    """
+    Get a sketch by global index across all components.
+
+    Args:
+        root: Root component
+        index: Global sketch index (or -1/None for last sketch)
+
+    Returns:
+        tuple: (sketch, component, error_message)
+    """
+    all_sketches = get_all_sketches(root)
+
+    if not all_sketches:
+        return None, None, "No sketches in design"
+
+    if index is None or index == -1:
+        index = len(all_sketches) - 1
+
+    if index < 0 or index >= len(all_sketches):
+        return None, None, f"Invalid sketch index {index}. Design has {len(all_sketches)} sketches."
+
+    sketch, _, comp = all_sketches[index]
+    return sketch, comp, None
+
+
 def get_body_by_index(root, index):
     """
     Get a body from the root component by index.

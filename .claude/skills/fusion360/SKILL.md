@@ -42,9 +42,8 @@ To send a command, write a JSON file with this structure:
 
 1. **Check the last command ID** by reading `results.json`
 2. **Send command** with incremented ID
-3. **Wait ~1 second** for execution
-4. **Read results** to confirm success
-5. **Repeat** for next command
+3. **Read results** to confirm success
+4. **Repeat** for next command
 
 ## Available Commands
 
@@ -89,5 +88,4 @@ All dimensions are in **centimeters** (Fusion 360's internal unit):
 
 - Always create a sketch before drawing shapes
 - Use `list_profiles` to find the correct profile index before extruding
-- Wait for each command to complete before sending the next
 - If a command fails, check `results.json` for error details

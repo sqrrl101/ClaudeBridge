@@ -180,7 +180,6 @@ Use this pattern for reliable command execution:
 
 ```python
 import json
-import time
 
 BRIDGE_DIR = "<ClaudeBridge-directory>"  # Set to your ClaudeBridge add-in path
 
@@ -188,7 +187,6 @@ def send_command(cmd_id, action, params={}):
     cmd = {"id": cmd_id, "action": action, "params": params}
     with open(f"{BRIDGE_DIR}/commands.json", "w") as f:
         json.dump(cmd, f)
-    time.sleep(1)  # Wait for execution
     with open(f"{BRIDGE_DIR}/results.json", "r") as f:
         return json.load(f)
 ```

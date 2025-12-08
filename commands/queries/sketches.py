@@ -5,19 +5,24 @@ Sketch-related query commands.
 import math
 
 from ...utils import write_result
+from ..helpers import get_all_sketches, get_sketch_by_global_index
 
 
 def get_sketches_detailed(command_id, params, ctx):
-    """Get detailed sketch information including curve counts."""
-    sketches = ctx.sketches
+    """Get detailed sketch information including curve counts.
+
+    Returns all sketches across all components with global indexing.
+    """
+    root = ctx.root
+    all_sketches = get_all_sketches(root)
 
     sketch_list = []
-    for i in range(sketches.count):
-        sketch = sketches.item(i)
+    for sketch, global_index, comp in all_sketches:
         curves = sketch.sketchCurves
         sketch_list.append({
             "name": sketch.name,
-            "index": i,
+            "index": global_index,
+            "component": comp.name,
             "profile_count": sketch.profiles.count,
             "is_visible": sketch.isVisible,
             "curves": {
@@ -34,15 +39,17 @@ def get_sketches_detailed(command_id, params, ctx):
 
 
 def get_sketch_geometry(command_id, params, ctx):
-    """Get detailed geometry coordinates for all curves in a sketch."""
-    sketches = ctx.sketches
+    """Get detailed geometry coordinates for all curves in a sketch.
 
+    Supports global indexing across all components.
+    """
+    root = ctx.root
     sketch_index = params.get("sketch_index", 0)
 
-    if sketch_index >= sketches.count:
-        return write_result(command_id, False, None, f"Sketch index {sketch_index} not found")
+    sketch, comp, error = get_sketch_by_global_index(root, sketch_index)
+    if error:
+        return write_result(command_id, False, None, error)
 
-    sketch = sketches.item(sketch_index)
     curves = sketch.sketchCurves
 
     # Helper to round coordinates
@@ -114,6 +121,7 @@ def get_sketch_geometry(command_id, params, ctx):
     write_result(command_id, True, {
         "sketch_name": sketch.name,
         "sketch_index": sketch_index,
+        "component": comp.name,
         "plane": plane_info,
         "circles": circles,
         "lines": lines,

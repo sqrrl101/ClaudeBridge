@@ -15,7 +15,6 @@ Usage:
 """
 
 import json
-import time
 import os
 
 BASE_DIR = os.path.expanduser("~/Documents/scripts/fusion_360/ClaudeBridge")
@@ -38,8 +37,8 @@ class FusionBridge:
         except:
             return 0
 
-    def _send_command(self, action, params=None, wait=1.0):
-        """Send a command and wait for result."""
+    def _send_command(self, action, params=None):
+        """Send a command and read result."""
         self.command_id += 1
         cmd = {
             "id": self.command_id,
@@ -50,15 +49,9 @@ class FusionBridge:
         with open(COMMANDS_FILE, 'w') as f:
             json.dump(cmd, f, indent=2)
 
-        time.sleep(wait)
-
         try:
             with open(RESULTS_FILE, 'r') as f:
-                result = json.load(f)
-                if result.get('command_id') == self.command_id:
-                    return result
-                else:
-                    return {"success": False, "error": "Command not processed yet"}
+                return json.load(f)
         except Exception as e:
             return {"success": False, "error": str(e)}
 
