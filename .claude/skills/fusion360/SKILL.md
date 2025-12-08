@@ -49,16 +49,18 @@ To send a command, write a JSON file with this structure:
 
 See [reference.md](./reference.md) for the complete API reference.
 
-Quick reference:
+### Getting Design Data
+- `export_session` - **Export all design data to a timestamped folder** (replaces all individual query commands)
+
+### Connection
 - `ping` - Test connection
-- `get_info` - Get design information
-- `get_full_design` - Complete design snapshot (bodies, sketches, features, parameters)
-- `get_bodies_detailed` - Detailed body geometry info
-- `get_all_parameters` - All parameters including sketch dimensions (d1, d2, etc.)
-- `get_sketch_geometry` - Full curve coordinates (circles, lines, arcs with positions)
-- `get_construction_planes` - List all construction planes
+- `message` - Display a message in Fusion 360
+
+### Construction Geometry
 - `create_offset_plane` - Create plane at Z offset (for multi-level geometry)
 - `create_plane_at_angle` - Create angled construction plane
+
+### Sketch Commands
 - `create_sketch` - Create sketch on plane (supports plane_index for offset planes)
 - `create_sketch_on_face` - Create sketch on existing body face
 - `draw_circle` - Draw a circle
@@ -66,13 +68,17 @@ Quick reference:
 - `draw_line` - Draw a line
 - `draw_arc` / `draw_arc_sweep` / `draw_arc_three_points` - Draw arcs
 - `list_profiles` - List profiles in a sketch
+
+### 3D Operations
 - `extrude` - Extrude a profile into 3D
 - `revolve` - Revolve a profile around an axis
+- `loft` / `loft_rails` - Create smooth transitions between profiles
 - `fillet` - Round edges
 - `chamfer` - Bevel edges
 - `shell` - Hollow out a body
+
+### Parameters
 - `set_parameter` - Create/update a user parameter
-- `message` - Display a message in Fusion 360
 
 ## Example: Create a Box
 

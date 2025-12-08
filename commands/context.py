@@ -43,14 +43,9 @@ class CommandContext:
         design = self.design
         if not design:
             return None
-        # activeEditObject returns the component currently being edited
+        # Use activeComponent which returns the component being edited
         # This respects which component the user has activated in the browser
-        active = design.activeEditObject
-        if hasattr(active, 'sketches'):
-            # It's a component
-            return active
-        # Fall back to root if activeEditObject is not a component
-        return design.rootComponent
+        return design.activeComponent
 
     @property
     def sketches(self):

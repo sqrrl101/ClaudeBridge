@@ -14,28 +14,26 @@ Architecture:
     ├── helpers/             # Shared utilities
     │   ├── geometry.py      # Face/edge/body selection
     │   └── validation.py    # Parameter validation
-    ├── queries/             # Design information retrieval
-    │   ├── design.py        # get_info, get_full_design
-    │   ├── bodies.py        # get_bodies_detailed
-    │   ├── sketches.py      # get_sketches_detailed, get_sketch_geometry
-    │   └── features.py      # get_features, get_parameters, get_all_parameters
+    ├── queries/             # [DEPRECATED] Use export_session instead
     ├── sketch/              # Sketch operations
-    │   ├── create.py        # create_sketch
+    │   ├── create.py        # create_sketch, create_sketch_on_face
     │   ├── primitives.py    # draw_circle, draw_rectangle, draw_line
-    │   ├── curves.py        # [future] arcs, ellipse, spline, slot
+    │   ├── curves.py        # draw_arc, draw_arc_sweep, draw_arc_three_points
     │   ├── operations.py    # [future] project, offset, mirror
-    │   ├── constraints.py   # [future] geometric constraints
+    │   ├── constraints.py   # coincident, vertical, horizontal constraints
     │   └── dimensions.py    # [future] parametric dimensions
     ├── features/            # 3D feature creation
     │   ├── basic.py         # extrude, revolve, list_profiles
     │   ├── modify.py        # fillet, chamfer, shell
-    │   ├── advanced.py      # [future] sweep, loft, hole, thread
+    │   ├── advanced.py      # loft, loft_rails
     │   ├── patterns.py      # [future] rectangular, circular, mirror
     │   └── body_ops.py      # [future] combine, split, move, scale
-    ├── construction/        # [future] Construction geometry
+    ├── construction/        # Construction geometry
+    │   └── planes.py        # create_offset_plane, create_plane_at_angle
     ├── timeline/            # [future] Delete, suppress, rollback
     ├── assembly/            # [future] Components and joints
-    └── export/              # [future] Export formats, save
+    └── export/              # Export operations
+        └── session.py       # export_session - exports all design data
 
 To add a new command:
     1. Add handler function to appropriate sub-module

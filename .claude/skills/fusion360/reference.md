@@ -18,93 +18,64 @@ Display a message box in Fusion 360.
 
 ---
 
-## Read Commands (Inspect Design)
+## Session Export (Design Data)
 
-### get_info
-Basic design information.
+### export_session
+**Export complete design data to a timestamped session folder.**
+
+This single command replaces all individual query commands. It exports everything the AI needs to understand the current design state.
+
 ```json
-{"id": 3, "action": "get_info", "params": {}}
+{"id": 3, "action": "export_session", "params": {}}
 ```
 
-### get_full_design
-**Complete design snapshot** - bodies, sketches, features, and parameters.
-```json
-{"id": 4, "action": "get_full_design", "params": {}}
-```
-**Response includes:**
-- All bodies with names, volumes, sizes
-- All sketches with profile/curve counts
-- All features in timeline order
-- All user parameters
+Optional parameters:
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| name | string | "" | Custom session name suffix |
 
-### get_bodies_detailed
-Comprehensive body information with geometry details.
+**Returns:**
 ```json
-{"id": 5, "action": "get_bodies_detailed", "params": {}}
-```
-**Response includes per body:**
-- `name`, `index`
-- `is_solid`, `volume_cm3`, `area_cm2`
-- `face_count`, `edge_count`, `vertex_count`
-- `face_types`: {"Plane": 6, "Cylinder": 2, ...}
-- `bounding_box`: {min, max, size}
-
-### get_sketches_detailed
-All sketches with curve information.
-```json
-{"id": 6, "action": "get_sketches_detailed", "params": {}}
-```
-**Response includes per sketch:**
-- `name`, `index`, `profile_count`, `is_visible`
-- `curves`: {lines, circles, arcs, ellipses, splines, total}
-
-### get_features
-Feature timeline history.
-```json
-{"id": 7, "action": "get_features", "params": {}}
-```
-**Response per feature:**
-- `name`, `index`, `type` (Extrude, Fillet, Shell, etc.)
-- `is_suppressed`, `is_valid`
-
-### get_parameters
-User-defined parameters only.
-```json
-{"id": 8, "action": "get_parameters", "params": {}}
+{
+  "session_path": "/path/to/ClaudeBridge/sessions/2024-01-15_14-30-22",
+  "session_name": "2024-01-15_14-30-22",
+  "files": ["manifest.json", "design_info.json", ...],
+  "summary": {"components": 1, "bodies": 2, "sketches": 3, ...}
+}
 ```
 
-### get_all_parameters
-**All parameters** including model parameters (sketch dimensions, feature values).
-```json
-{"id": 9, "action": "get_all_parameters", "params": {}}
-```
-**Response includes:**
-- `user_parameters`: Explicitly created parameters
-- `model_parameters`: Auto-generated from sketches/features (d1, d2, Extrude1_Height, etc.)
-  - `name`: Parameter name (e.g., "d1", "Revolve1_Angle")
-  - `expression`: The expression/value as entered
-  - `value`: Numeric value in internal units
-  - `unit`: Unit type
-  - `role`: Parameter role (if available)
-  - `created_by`: Which sketch/feature created this parameter
-- `counts`: Total counts of each type
+**Exported Files:**
 
-### get_sketch_geometry
-**Full geometry coordinates** for all curves in a sketch.
-```json
-{"id": 9, "action": "get_sketch_geometry", "params": {"sketch_index": 0}}
-```
-**Response includes:**
-- `circles`: center [x,y,z], radius, diameter, is_construction
-- `lines`: start [x,y,z], end [x,y,z], length, is_construction
-- `arcs`: center, radius, start_point, end_point, start_angle_deg, end_angle_deg
-- `ellipses`: center, major_radius, minor_radius
+| File | Contents |
+|------|----------|
+| `manifest.json` | Session metadata, file list, summary counts |
+| `design_info.json` | Design overview: components, bodies, sketches, features, parameters |
+| `bodies.json` | Detailed body info: volume, area, face types, bounding box, circular edges |
+| `features.json` | Timeline features with suppression status |
+| `parameters.json` | User parameters + model parameters (d1, d2, etc.) with source info |
+| `construction_planes.json` | All construction planes |
+| `sketches/overview.json` | Summary of all sketches with curve counts |
+| `sketches/sketch_N.json` | Full geometry for sketch N (circles, lines, arcs, ellipses with coordinates) |
 
-### list_profiles
-List profiles in a sketch (for extrusion).
-```json
-{"id": 10, "action": "list_profiles", "params": {"sketch_index": 0}}
+**Example Session Folder:**
 ```
+sessions/2024-01-15_14-30-22/
+  manifest.json
+  design_info.json
+  bodies.json
+  features.json
+  parameters.json
+  construction_planes.json
+  sketches/
+    overview.json
+    sketch_0.json
+    sketch_1.json
+```
+
+**Workflow:**
+1. Call `export_session` once to export all design data
+2. Read the JSON files you need directly from the session folder
+3. No need for multiple round-trip commands
 
 ---
 
@@ -141,12 +112,6 @@ Create a construction plane at an angle from a base plane.
 | axis | string | "x" | Rotation axis (`"x"`, `"y"`, `"z"`) |
 | angle | float | 45 | Angle in degrees |
 | name | string | auto | Optional custom name |
-
-### get_construction_planes
-List all construction planes in the design.
-```json
-{"id": 12, "action": "get_construction_planes", "params": {}}
-```
 
 ---
 
@@ -283,6 +248,12 @@ Draw an arc defined by center, start point, and sweep angle.
 }}
 ```
 
+### list_profiles
+List profiles in a sketch (for extrusion).
+```json
+{"id": 10, "action": "list_profiles", "params": {"sketch_index": 0}}
+```
+
 ---
 
 ## 3D Operations
@@ -332,6 +303,63 @@ Revolve a sketch profile around an axis to create rotational geometry.
 // 3. Revolve around the line
 {"id": 3, "action": "revolve", "params": {"axis": "line", "axis_line_index": 0}}
 ```
+
+### loft
+Create a smooth transition between two or more profiles (sketches at different positions).
+```json
+{"id": 16, "action": "loft", "params": {
+  "sections": [
+    {"sketch_index": 0, "profile_index": 0},
+    {"sketch_index": 1, "profile_index": 0}
+  ],
+  "operation": "join"
+}}
+```
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| sections | array | required | List of {sketch_index, profile_index} objects |
+| operation | string | "new" | `"new"`, `"join"`, `"cut"` |
+| is_solid | bool | true | Create solid (true) or surface (false) |
+| is_closed | bool | false | Connect last section back to first |
+
+**Example: Create curved transition between two shapes**
+```json
+// 1. Create sketch on bottom plane with shape A
+{"id": 1, "action": "create_sketch", "params": {"plane": "xy"}}
+{"id": 2, "action": "draw_rectangle", "params": {"width": 4, "height": 4}}
+// 2. Create offset plane and sketch with shape B
+{"id": 3, "action": "create_offset_plane", "params": {"plane": "xy", "offset": 5}}
+{"id": 4, "action": "create_sketch", "params": {"plane_index": 0}}
+{"id": 5, "action": "draw_circle", "params": {"radius": 2}}
+// 3. Loft between them
+{"id": 6, "action": "loft", "params": {
+  "sections": [
+    {"sketch_index": 0, "profile_index": 0},
+    {"sketch_index": 1, "profile_index": 0}
+  ]
+}}
+```
+
+### loft_rails
+Loft with guide rails for more controlled shape transitions.
+```json
+{"id": 17, "action": "loft_rails", "params": {
+  "sections": [
+    {"sketch_index": 0, "profile_index": 0},
+    {"sketch_index": 1, "profile_index": 0}
+  ],
+  "rails": [
+    {"sketch_index": 2, "curve_index": 0}
+  ],
+  "operation": "new"
+}}
+```
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| sections | array | required | Same as loft |
+| rails | array | [] | List of {sketch_index, curve_index} for guide curves |
+| operation | string | "new" | `"new"`, `"join"`, `"cut"` |
+| is_solid | bool | true | Create solid or surface |
 
 ### fillet
 Round edges of a body.
@@ -399,17 +427,17 @@ All dimensions are in **centimeters** (Fusion 360's internal unit):
 
 ---
 
-## Workflow: Modifying Existing Design
+## Workflow: Understanding and Modifying a Design
 
-1. **Read current state:**
+1. **Export session data:**
    ```json
-   {"id": 1, "action": "get_full_design", "params": {}}
+   {"id": 1, "action": "export_session", "params": {}}
    ```
 
-2. **Analyze the response** to understand:
-   - What bodies exist and their sizes
-   - What features have been applied
-   - Available sketches
+2. **Read the exported files** from the session folder:
+   - `design_info.json` for overview
+   - `bodies.json` for detailed body geometry
+   - `sketches/sketch_N.json` for specific sketch coordinates
 
 3. **Make modifications:**
    - Add fillet/chamfer to existing bodies
@@ -417,9 +445,9 @@ All dimensions are in **centimeters** (Fusion 360's internal unit):
    - Shell to hollow out
    - Add new features
 
-4. **Verify changes:**
+4. **Export again** to verify changes:
    ```json
-   {"id": 99, "action": "get_bodies_detailed", "params": {}}
+   {"id": 99, "action": "export_session", "params": {"name": "after_changes"}}
    ```
 
 ---
@@ -430,3 +458,4 @@ All dimensions are in **centimeters** (Fusion 360's internal unit):
 |------|---------|
 | `~/Documents/scripts/fusion_360/ClaudeBridge/commands.json` | Write commands |
 | `~/Documents/scripts/fusion_360/ClaudeBridge/results.json` | Read results |
+| `~/Documents/scripts/fusion_360/ClaudeBridge/sessions/` | Exported session data |

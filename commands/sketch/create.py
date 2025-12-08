@@ -110,39 +110,7 @@ def create_sketch_on_face(command_id, params, ctx):
         write_result(command_id, False, None, f"Failed to create sketch on face: {str(e)}")
 
 
-def get_construction_planes(command_id, params, ctx):
-    """
-    List all construction planes in the design.
-
-    Returns:
-        planes: List of construction planes with name, index, and type
-        count: Total number of construction planes
-    """
-    root = ctx.root
-
-    try:
-        planes = root.constructionPlanes
-        plane_list = []
-
-        for i in range(planes.count):
-            plane = planes.item(i)
-            plane_list.append({
-                "index": i,
-                "name": plane.name,
-                "is_visible": plane.isVisible
-            })
-
-        write_result(command_id, True, {
-            "planes": plane_list,
-            "count": planes.count
-        })
-
-    except Exception as e:
-        write_result(command_id, False, None, f"Failed to list planes: {str(e)}")
-
-
 COMMANDS = {
     "create_sketch": create_sketch,
     "create_sketch_on_face": create_sketch_on_face,
-    "get_construction_planes": get_construction_planes,
 }
