@@ -15,8 +15,9 @@ class CommandContext:
         ui: The UserInterface object
         design: The active Design (may be None)
         root: The root component (if design exists)
-        sketches: The sketches collection (if design exists)
-        extrudes: The extrude features collection (if design exists)
+        active_component: The currently active component (if design exists)
+        sketches: The sketches collection (from active component)
+        extrudes: The extrude features collection (from active component)
     """
 
     def __init__(self, app, ui):
@@ -37,16 +38,31 @@ class CommandContext:
         return design.rootComponent if design else None
 
     @property
+    def active_component(self):
+        """Get the currently active component (the one being edited)."""
+        design = self.design
+        if not design:
+            return None
+        # activeEditObject returns the component currently being edited
+        # This respects which component the user has activated in the browser
+        active = design.activeEditObject
+        if hasattr(active, 'sketches'):
+            # It's a component
+            return active
+        # Fall back to root if activeEditObject is not a component
+        return design.rootComponent
+
+    @property
     def sketches(self):
-        """Get the sketches collection from root component."""
-        root = self.root
-        return root.sketches if root else None
+        """Get the sketches collection from active component."""
+        comp = self.active_component
+        return comp.sketches if comp else None
 
     @property
     def extrudes(self):
-        """Get the extrude features collection from root component."""
-        root = self.root
-        return root.features.extrudeFeatures if root else None
+        """Get the extrude features collection from active component."""
+        comp = self.active_component
+        return comp.features.extrudeFeatures if comp else None
 
     def require_design(self):
         """
