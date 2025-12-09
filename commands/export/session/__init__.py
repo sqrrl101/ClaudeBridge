@@ -9,8 +9,8 @@ multiple round-trip commands.
 import os
 from datetime import datetime
 
-from ...config import BASE_DIR
-from ...utils import write_result
+from ....config import BASE_DIR
+from ....utils import write_result
 from ...helpers import collect_all_components
 from .utils import write_json
 from .collectors import (
