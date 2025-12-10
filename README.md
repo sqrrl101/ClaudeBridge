@@ -11,7 +11,7 @@ A Fusion 360 add-in that enables Claude to programmatically control Autodesk Fus
 
 ## Installation
 
-### 1. Clone or Download
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/your-username/ClaudeBridge.git
@@ -19,25 +19,16 @@ git clone https://github.com/your-username/ClaudeBridge.git
 
 ### 2. Install the Add-in
 
-Copy the `ClaudeBridge` folder to Fusion 360's add-ins directory:
-
-**macOS:**
-```
-~/Library/Application Support/Autodesk/Fusion 360/API/AddIns/
-```
-
-**Windows:**
-```
-%APPDATA%\Autodesk\Fusion 360\API\AddIns\
-```
-
-### 3. Enable in Fusion 360
-
 1. Open Fusion 360
 2. Create or open a design
 3. Press `Shift+S` to open the Scripts and Add-Ins dialog
 4. Go to the **Add-Ins** tab
-5. Select **ClaudeBridge** and click **Run**
+5. Click the **+** button
+6. Select **Script or add-in from device**
+7. Navigate to and select the cloned `ClaudeBridge` repository folder
+8. Select **ClaudeBridge** from the list and click **Run**
+
+The add-in will now load directly from your repository folder, so any changes you make to the code will be reflected after restarting the add-in.
 
 ## How It Works
 
@@ -217,4 +208,4 @@ COMMANDS = {
 
 ## License
 
-MIT License - See [LICENSE](LICENSE) for details.
+MIT License
