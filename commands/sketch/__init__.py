@@ -5,6 +5,7 @@ Sub-modules:
 - create: Sketch creation (create_sketch)
 - primitives: Basic shapes (draw_circle, draw_rectangle, draw_line, draw_polygon)
 - curves: Advanced curves (draw_arc, draw_ellipse, draw_spline, draw_slot) [placeholder]
+- text: Text commands (draw_text, emboss_text)
 - operations: Sketch operations (project, offset, mirror) [placeholder]
 - constraints: Geometric constraints [placeholder]
 - dimensions: Parametric dimensions [placeholder]
@@ -12,6 +13,12 @@ Sub-modules:
 
 from .create import COMMANDS as CREATE_COMMANDS
 from .primitives import COMMANDS as PRIMITIVE_COMMANDS
+
+# Import text commands
+try:
+    from .text import COMMANDS as TEXT_COMMANDS
+except ImportError:
+    TEXT_COMMANDS = {}
 
 # Import placeholder modules if they have commands
 try:
@@ -38,6 +45,7 @@ except ImportError:
 COMMANDS = {}
 COMMANDS.update(CREATE_COMMANDS)
 COMMANDS.update(PRIMITIVE_COMMANDS)
+COMMANDS.update(TEXT_COMMANDS)
 COMMANDS.update(CURVE_COMMANDS)
 COMMANDS.update(OPERATION_COMMANDS)
 COMMANDS.update(CONSTRAINT_COMMANDS)

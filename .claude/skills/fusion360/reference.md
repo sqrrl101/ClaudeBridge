@@ -51,7 +51,7 @@ Optional parameters:
 | `manifest.json` | Session metadata, file list, summary counts |
 | `design_info.json` | Design overview: components, bodies, sketches, features, parameters |
 | `bodies.json` | Detailed body info: volume, area, face types, bounding box, circular edges |
-| `features.json` | Timeline features with suppression status |
+| `features.json` | Timeline features with suppression status; **hole features include detailed parameters** |
 | `parameters.json` | User parameters + model parameters (d1, d2, etc.) with source info |
 | `construction_planes.json` | All construction planes |
 | `sketches/overview.json` | Summary of all sketches with curve counts |
@@ -76,6 +76,32 @@ sessions/2024-01-15_14-30-22/
 1. Call `export_session` once to export all design data
 2. Read the JSON files you need directly from the session folder
 3. No need for multiple round-trip commands
+
+**Hole Feature Details (in features.json):**
+
+For features with `"type": "Hole"`, a `hole_details` object is included:
+```json
+{
+  "name": "Hole5",
+  "type": "Hole",
+  "hole_details": {
+    "hole_type": "simple",           // "simple", "counterbore", or "countersink"
+    "diameter_cm": 0.3,              // Hole diameter in cm
+    "tip_angle_deg": 118.0,          // Tip angle in degrees
+    "tap_type": "none",              // "none", "tapped", or "clearance"
+    "position": {"x": 1.5, "y": 2.0, "z": 0.5},  // Hole center position
+    "direction": {"x": 0, "y": 0, "z": -1},      // Hole direction vector
+    "side_face_count": 1,
+    "end_face_count": 1,
+    // For counterbore holes:
+    "counterbore": {"depth_cm": 0.2, "diameter_cm": 0.5},
+    // For countersink holes:
+    "countersink": {"angle_deg": 82.0, "diameter_cm": 0.6},
+    // For tapped holes:
+    "thread": {"designation": "M3x0.5", "class": "6H", "is_modeled": false}
+  }
+}
+```
 
 ---
 
@@ -252,6 +278,72 @@ Draw an arc defined by center, start point, and sweep angle.
 List profiles in a sketch (for extrusion).
 ```json
 {"id": 10, "action": "list_profiles", "params": {"sketch_index": 0}}
+```
+
+---
+
+## Text Commands
+
+### draw_text
+Draw text on a sketch. The text creates sketch curves that can be extruded.
+```json
+{"id": 30, "action": "draw_text", "params": {
+  "sketch_index": 0,
+  "text": "Hello",
+  "x": 0,
+  "y": 0,
+  "height": 1.0,
+  "font_name": "Arial"
+}}
+```
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| sketch_index | int | last | Which sketch |
+| text | string | required | Text string to draw |
+| x | float | 0 | X position of text anchor |
+| y | float | 0 | Y position of text anchor |
+| height | float | 1.0 | Text height in cm |
+| angle | float | 0 | Rotation angle in degrees |
+| font_name | string | "Arial" | Font name |
+
+### emboss_text
+Emboss (raised) or deboss (cut) text on a body face. This convenience command creates a sketch on the face, adds text, and extrudes it.
+```json
+{"id": 31, "action": "emboss_text", "params": {
+  "body_index": 0,
+  "use_top_face": true,
+  "text": "67 in",
+  "height": 0.5,
+  "depth": 0.05,
+  "emboss": false
+}}
+```
+| Param | Type | Default | Description |
+|-------|------|---------|-------------|
+| body_index | int | 0 | Which body |
+| face_index | int | 0 | Which face (if use_top_face is false) |
+| use_top_face | bool | false | Auto-find topmost planar face |
+| text | string | required | Text string to emboss |
+| x | float | 0 | X position relative to face |
+| y | float | 0 | Y position relative to face |
+| height | float | 1.0 | Text height in cm |
+| depth | float | 0.1 | Extrusion depth in cm |
+| emboss | bool | false | True for raised (emboss), False for cut (deboss) |
+| font_name | string | "Arial" | Font name |
+
+**Example: Label a board with its dimension**
+```json
+// Deboss "67 in" on top of body 1
+{"id": 1, "action": "emboss_text", "params": {
+  "body_index": 1,
+  "use_top_face": true,
+  "text": "67 in",
+  "x": 2,
+  "y": 0.5,
+  "height": 0.8,
+  "depth": 0.05,
+  "emboss": false
+}}
 ```
 
 ---

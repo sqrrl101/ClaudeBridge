@@ -16,11 +16,23 @@ from .geometry import (
     get_all_sketches,
     get_sketch_by_global_index,
     get_body_by_index,
+    get_body_by_global_index,
+    get_all_bodies,
     get_sketch_by_index,
     collect_edges,
     find_top_face,
     get_construction_axis,
     get_construction_plane,
+    # Occurrence/joint helpers
+    get_occurrence_by_index,
+    get_occurrence_by_name,
+    get_joint_direction,
+    get_key_point_type,
+    get_joint_type_setter,
+    create_transform_matrix,
+    get_face_from_occurrence,
+    get_edge_from_occurrence,
+    create_joint_geometry_from_spec,
 )
 
 # Sketch curve accessors

@@ -41,6 +41,7 @@ commands/
     create.py                # create_sketch, create_sketch_on_face
     primitives.py            # draw_circle, draw_rectangle, draw_line, draw_polygon
     curves.py                # draw_arc, draw_arc_sweep, draw_arc_three_points
+    text.py                  # draw_text, emboss_text (text on sketches and faces)
     constraints/             # Geometric constraints (point.py, line.py, query.py)
   features/
     basic.py                 # extrude, revolve, list_profiles
@@ -48,7 +49,9 @@ commands/
     advanced.py              # loft, loft_rails
   construction/              # create_offset_plane, create_plane_at_angle
   timeline/                  # [future] delete, suppress, rollback
-  assembly/                  # [future] components, joints
+  assembly/                  # Components and joints for multi-part assemblies
+    components.py            # create_component, activate_component, ground_component, list_components
+    joints.py                # create_joint, create_as_built_joint, list_joints
   export/
     session/                 # export_session (collectors for design, bodies, sketches, etc.)
 ```
@@ -106,6 +109,61 @@ The `id` must be higher than the previous command or it will be ignored.
 - **Revolve angle**: Degrees (default 360 for full revolution)
 - **Defaults**: sketch_index defaults to last created sketch; body_index defaults to 0
 
+## Assembly Commands
+
+Commands for creating multi-component assemblies with joints:
+
+### Component Commands
+- **create_component**: Create a new component with optional position
+  - `name`: Component name (optional)
+  - `x, y, z`: Position in cm (optional)
+  - `rx, ry, rz`: Rotation in degrees (optional)
+- **activate_component**: Activate a component for editing
+  - `occurrence_index` or `name`: Component to activate
+  - `activate_root`: Set true to activate root component
+- **ground_component**: Fix component in place
+  - `occurrence_index` or `name`: Component to ground
+  - `grounded`: True/False (default True)
+- **list_components**: List all components and occurrences
+
+### Joint Commands
+- **create_as_built_joint**: Create joint from current positions (simpler)
+  - `occurrence_one_index`, `occurrence_two_index`: Component indices
+  - `joint_type`: `"rigid"`, `"revolute"`, `"slider"`, `"cylindrical"`, `"ball"`, `"planar"`
+  - `direction`: Axis for motion `"x"`, `"y"`, `"z"` (default `"z"`)
+- **create_joint**: Create joint using geometry specifications
+  - Same occurrence params as above
+  - `geometry_one`, `geometry_two`: Geometry specs with:
+    - `type`: `"face"` or `"edge"`
+    - `body_index`, `face_index` or `edge_index`
+    - `key_point`: `"center"`, `"start"`, `"end"`, `"middle"`
+  - `angle`: Offset angle in degrees
+  - `offset`: Offset distance in cm
+- **list_joints**: List all joints in the design
+
+## Text Commands
+
+Commands for adding text to sketches and embossing/debossing text on body faces:
+
+- **draw_text**: Draw text on a sketch
+  - `sketch_index`: Which sketch (default: last)
+  - `text`: Text string to draw (required)
+  - `x, y`: Position of text anchor (default: 0, 0)
+  - `height`: Text height in cm (default: 1.0)
+  - `angle`: Rotation angle in degrees (default: 0)
+  - `font_name`: Font name (default: "Arial")
+
+- **emboss_text**: Emboss or deboss text on a body face
+  - `body_index`: Which body (default: 0)
+  - `face_index`: Which face (default: 0)
+  - `use_top_face`: Auto-find topmost face (default: false)
+  - `text`: Text string to emboss (required)
+  - `x, y`: Position relative to face (default: 0, 0)
+  - `height`: Text height in cm (default: 1.0)
+  - `depth`: Extrusion depth in cm (default: 0.1)
+  - `emboss`: True for raised, False for cut (default: false/deboss)
+  - `font_name`: Font name (default: "Arial")
+
 ## Shared Helpers
 
 Use helpers from `commands/helpers/` for common operations:
@@ -135,6 +193,15 @@ from ..helpers import (
 
 # Decorators (from helpers/command_utils.py)
 from ..helpers import with_sketch, with_error_handling
+
+# Occurrence/joint helpers (from helpers/geometry/occurrences.py)
+from ..helpers import (
+    get_occurrence_by_index,     # Safe occurrence lookup
+    get_occurrence_by_name,      # Lookup by name
+    get_joint_direction,         # Convert "x"/"y"/"z" to JointDirections
+    create_transform_matrix,     # Create Matrix3D with position/rotation
+    create_joint_geometry_from_spec,  # Create JointGeometry from dict spec
+)
 ```
 
 ## File Paths

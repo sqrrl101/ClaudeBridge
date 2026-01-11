@@ -5,6 +5,7 @@ from .sketches import export_sketches
 from .features import export_features
 from .parameters import export_parameters
 from .construction import export_construction_planes
+from .joints import export_joints
 
 __all__ = [
     'export_design_info',
@@ -13,4 +14,5 @@ __all__ = [
     'export_features',
     'export_parameters',
     'export_construction_planes',
+    'export_joints',
 ]

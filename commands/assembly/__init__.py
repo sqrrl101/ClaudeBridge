@@ -2,10 +2,17 @@
 Component and assembly commands.
 
 Sub-modules:
-- components: Component management [placeholder]
-- joints: Assembly joints [placeholder]
+- components: Component management (create, activate, ground, list)
+- joints: Assembly joints (create, create_as_built, list)
 
-See: docs/missing-features.md - Components & Assembly section
+Commands:
+- list_components: List all components/occurrences
+- create_component: Create a new component
+- activate_component: Activate a component for editing
+- ground_component: Ground/unground a component
+- list_joints: List all joints
+- create_joint: Create a joint using geometry
+- create_as_built_joint: Create a joint from current positions
 """
 
 try:

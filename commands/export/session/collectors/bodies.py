@@ -45,6 +45,8 @@ def export_bodies(root, all_components, session_dir):
             circular_edges = []
             for edge_idx, edge in enumerate(body.edges):
                 geom = edge.geometry
+                if geom is None:
+                    continue
                 curve_type = geom.curveType
 
                 if curve_type == 2:  # Circle

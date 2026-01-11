@@ -59,6 +59,24 @@ class CommandContext:
         comp = self.active_component
         return comp.features.extrudeFeatures if comp else None
 
+    @property
+    def occurrences(self):
+        """Get all occurrences from root component."""
+        root = self.root
+        return root.allOccurrences if root else None
+
+    @property
+    def joints(self):
+        """Get joints collection from root component."""
+        root = self.root
+        return root.joints if root else None
+
+    @property
+    def as_built_joints(self):
+        """Get as-built joints collection from root component."""
+        root = self.root
+        return root.asBuiltJoints if root else None
+
     def require_design(self):
         """
         Check if a design is active.

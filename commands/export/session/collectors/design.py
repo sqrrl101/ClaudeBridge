@@ -86,9 +86,14 @@ def export_design_info(design, root, all_components, session_dir):
     params_list = []
     for i in range(design.userParameters.count):
         param = design.userParameters.item(i)
+        try:
+            value_str = f"{param.expression} ({param.value} {param.unit})"
+        except:
+            # Non-numeric parameter (text, boolean, etc.)
+            value_str = param.expression
         params_list.append({
             "name": param.name,
-            "value": f"{param.expression} ({param.value} {param.unit})"
+            "value": value_str
         })
 
     data = {

@@ -23,10 +23,15 @@ def export_parameters(design, session_dir):
     user_params = []
     for i in range(design.userParameters.count):
         param = design.userParameters.item(i)
+        try:
+            value = round(param.value, 6)
+        except:
+            # Non-numeric parameter (text, boolean, etc.)
+            value = None
         user_params.append({
             "name": param.name,
             "expression": param.expression,
-            "value": round(param.value, 6),
+            "value": value,
             "unit": param.unit,
             "comment": param.comment
         })
@@ -51,10 +56,15 @@ def export_parameters(design, session_dir):
         except:
             pass
 
+        try:
+            value = round(param.value, 6)
+        except:
+            # Non-numeric parameter (text, boolean, etc.)
+            value = None
         model_params.append({
             "name": param.name,
             "expression": param.expression,
-            "value": round(param.value, 6),
+            "value": value,
             "unit": param.unit,
             "role": role,
             "created_by": created_by

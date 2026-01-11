@@ -20,6 +20,7 @@ from .collectors import (
     export_features,
     export_parameters,
     export_construction_planes,
+    export_joints,
 )
 
 
@@ -66,6 +67,7 @@ def export_session(command_id, params, ctx):
         feature_count = export_features(root, all_components, session_dir)
         param_count = export_parameters(design, session_dir)
         plane_count = export_construction_planes(root, session_dir)
+        joint_count = export_joints(root, session_dir)
 
         # Create manifest
         manifest = {
@@ -79,7 +81,8 @@ def export_session(command_id, params, ctx):
                 *[f"sketches/sketch_{i}.json" for i in range(sketch_count)],
                 "features.json",
                 "parameters.json",
-                "construction_planes.json"
+                "construction_planes.json",
+                "joints.json"
             ],
             "summary": {
                 "components": design_summary["component_count"],
@@ -87,7 +90,8 @@ def export_session(command_id, params, ctx):
                 "sketches": sketch_count,
                 "features": feature_count,
                 "parameters": param_count,
-                "construction_planes": plane_count
+                "construction_planes": plane_count,
+                "joints": joint_count
             }
         }
         write_json(os.path.join(session_dir, "manifest.json"), manifest)
