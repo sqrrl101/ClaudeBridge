@@ -2,7 +2,7 @@
 
 A Fusion 360 add-in that enables Claude to programmatically control Autodesk Fusion 360. Create 3D models through natural language by letting Claude send commands directly to Fusion 360.
 
-Note: Forked by sqrrl101 2026-02-10 from [alt](https://github.com/altjx) - all credit goes to them, I have no idea what I'm doing and am just messing around with Claude Code and 3D printing for the first time!
+Note: Forked by sqrrl101 2026-02-10 from user [altjx](https://github.com/altjx) - all credit goes to them, I have no idea what I'm doing and am just messing around with Claude Code and 3D printing for the first time!
 
 ## Changes
 - 2026-02-10: Updated to change units from cm to mm
