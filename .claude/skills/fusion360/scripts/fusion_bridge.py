@@ -17,7 +17,8 @@ Usage:
 import json
 import os
 
-BASE_DIR = os.path.expanduser("~/Documents/scripts/fusion_360/ClaudeBridge")
+# Derive BASE_DIR from this script's location (4 levels up: scripts/ -> fusion360/ -> skills/ -> .claude/ -> repo root)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))))
 COMMANDS_FILE = os.path.join(BASE_DIR, "commands.json")
 RESULTS_FILE = os.path.join(BASE_DIR, "results.json")
 

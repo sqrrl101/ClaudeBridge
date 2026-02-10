@@ -7,6 +7,7 @@ multiple round-trip commands.
 """
 
 import os
+import re
 from datetime import datetime
 
 from ....config import BASE_DIR
@@ -49,11 +50,19 @@ def export_session(command_id, params, ctx):
     timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     custom_name = params.get("name", "")
     if custom_name:
+        # Sanitize: allow only alphanumeric, hyphens, underscores, spaces
+        custom_name = re.sub(r'[^a-zA-Z0-9_\- ]', '', custom_name).strip()
+    if custom_name:
         folder_name = f"{timestamp}_{custom_name}"
     else:
         folder_name = timestamp
 
     session_dir = os.path.join(sessions_dir, folder_name)
+
+    # Ensure the resolved path is inside the sessions directory
+    if not os.path.realpath(session_dir).startswith(os.path.realpath(sessions_dir)):
+        write_result(command_id, False, None, "Invalid session name")
+        return
     os.makedirs(session_dir, exist_ok=True)
 
     try:
